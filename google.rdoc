@@ -1,0 +1,5 @@
+= google
+
+Generate this with
+    google rdoc
+After you have described your command line interface

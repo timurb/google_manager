@@ -1,0 +1,55 @@
+#!/usr/bin/env ruby
+begin
+  require 'gli'
+  require 'google'
+rescue LoadError
+  require 'rubygems'
+  require 'bundler/setup'
+  require 'gli'
+  require 'google'
+  require 'google_apps'
+  require 'active_support/core_ext/hash'
+end
+
+include GLI::App
+
+program_desc 'Manage google useres and groups'
+
+version Google::VERSION
+
+#desc 'Describe some switch here'
+#switch [:s,:switch]
+
+desc 'A config file to use'
+default_value 'google.yml'
+arg_name 'config.yml'
+flag [:c,:config]
+
+desc 'Manage google boxes'
+arg_name 'list create delete'
+command :user do |c|
+  c.action do |global_options,options,args|
+    command = args.delete_at(0)
+    Google::Connector.user(command, args)
+  end
+end
+
+desc 'Manage google groups'
+arg_name 'list create delete'
+command :group do |c|
+  c.action do |global_options,options,args|
+    command = args.delete_at(0)
+    Google::Connector.group(command, args)
+  end
+end
+
+pre do |global,command,options,args|
+  config = YAML.load( File.read( global[:config])).symbolize_keys
+  Google::Connector.new(config)
+end
+
+on_error do |e|
+  raise e
+end
+
+exit run(ARGV)
