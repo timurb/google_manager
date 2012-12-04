@@ -4,15 +4,14 @@ module GoogleManager
   class Nickname < BaseResource
     class << self
 
-      def list( fields=nil )
+      def list
         GoogleManager::Connector.transporter.retrieve_all_nicknames.each { |nickname|
           process_nickname(nickname)
         }
         format_list_output( nicknames )
       end
 
-      def unprocessed_get( args )
-        user=args[0]
+      def unprocessed_get( user )
         GoogleManager::Connector.transporter.retrieve_nicknames(user).each { |nickname|
           process_nickname(nickname)
         }

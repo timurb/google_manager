@@ -6,10 +6,10 @@ module GoogleManager
   class User < BaseResource
     class << self
 
-      def get( args )
-        user = unprocessed_get(args)
+      def get( target )
+        user = unprocessed_get(target)
         username = user.username
-        nicknames = GoogleManager::Connector.command(:nickname, :unprocessed_get, [username])
+        nicknames = GoogleManager::Connector.command(:nickname, :unprocessed_get, username)
         if nicknames.empty?
           format_output(user)
         else

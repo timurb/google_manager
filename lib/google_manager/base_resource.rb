@@ -5,27 +5,27 @@ module GoogleManager
   class BaseResource
 
     class << self
-      def list( fields=nil )
-        GoogleManager::Connector.transporter.send("retrieve_all_#{resource_name_plural}").map { |entry|
+      def list
+        api.send("retrieve_all_#{resource_name_plural}").map { |entry|
           format_list_output( entry )
         }
       end
 
-      def unprocessed_get( args )
-        GoogleManager::Connector.transporter.send("retrieve_#{resource_name}", args[0])
+      def unprocessed_get( target )
+        api.send("retrieve_#{resource_name}", target)
       end
 
-      def get( args )
-        format_get_output( unprocessed_get(args) )
+      def get( target )
+        format_get_output( unprocessed_get(target) )
       end
 
       def create( args )
-        result = GoogleManager::Connector.transporter.send("create_#{resource_name}", *args)
+        result = api.send("create_#{resource_name}", *args)
         format_create_output( result )
       end
 
-      def delete( args )
-        result = GoogleManager::Connector.transporter.send("delete_#{resource_name}", args[0])
+      def delete( target )
+        result = api.send("delete_#{resource_name}", target )
         result.map { |entry|
           format_output( entry )
         }
@@ -58,6 +58,10 @@ module GoogleManager
 
       def toggle_char(boolean_string, char, inverse = false)
         boolean_string.boolean ^ !!inverse ? char : (" " * char.length)
+      end
+
+      def api
+        GoogleManager::Connector.transporter
       end
     end
   end

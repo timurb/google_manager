@@ -25,14 +25,93 @@ default_value 'google.yml'
 arg_name 'config.yml'
 flag [:c,:config]
 
-["user", "group", "nickname"].each do |type|
-  desc "Manage google #{type.pluralize}"
-#  arg_name 'list create delete'
-  command type.to_sym do |c|
-    c.action do |global_options,options,args|
-      command = args.delete_at(0)
-      puts GoogleManager::Connector.command(type, command, args)
+def flag_targets(c, options)
+  options.each do |option|
+    c.desc "A #{option} to manage"
+    c.arg_name "[#{option}]", :optional => true
+    c.flag [option[0], option]
+  end
+end
+
+def switch_targets(c, options)
+  options.each do |option|
+    c.desc "A #{option} to manage"
+    c.switch [option[0], option], :negatable => false
+  end
+end
+
+def only_one_target(options, target_list)
+    if options.select {|x| target_list.include?(x) && options[x] }.count !=1
+      raise "You need to specify exactly one flag of #{target_list.map {|x| "--#{x}" }.join(", ")}"
     end
+end
+
+desc "List all the objects of specified type"
+command :list do |c|
+  target_list = [:user, :group, :nickname]
+  switch_targets(c, target_list)
+
+  c.action do |global_options, options, args|
+    only_one_target options, target_list
+
+    target_list.each do |target|
+      puts GoogleManager::Connector.command(target, :list) if options[target]
+    end
+  end
+end
+
+desc "Get an object of specified type"
+command :get do |c|
+  target_list = [:user, :group, :nickname]
+  flag_targets(c, target_list)
+
+  c.action do |global_options, options, args|
+    only_one_target options, target_list
+
+    target_list.each do |target|
+      puts GoogleManager::Connector.command(target, :get, options[target]) if options[target]
+    end
+  end
+end
+
+[:add, :remove, :modify].each do |action|
+  desc "#{action} subscribers in group"
+  command action do |c|
+    flag_targets(c, [:group])
+
+    c.desc "Members to add"
+    c.arg_name "members list"
+    c.flag [:m, :members]
+
+    c.action do |global_options, options, args|
+      only_one_target options, [:group]
+      only_one_target options, [:members]
+      puts GoogleManager::Group.send(action, options[:group], options[:members])
+    end
+  end
+end
+
+desc "Delete an object of specified type"
+command :delete do |c|
+  target_list = [:user, :group, :nickname]
+  flag_targets(c, target_list)
+
+  c.action do |global_options, options, args|
+    only_one_target options, target_list
+
+    target_list.each do |target|
+      puts GoogleManager::Connector.command(target, :delete, options[target]) if options[target]
+    end
+  end
+end
+
+desc "create group"
+command :create_group do |c|
+  flag_targets(c, [:group])
+
+  c.action do |global_options, options, args|
+    only_one_target options, [:group]
+    puts GoogleManager::Group.create(options[:group])
   end
 end
 
