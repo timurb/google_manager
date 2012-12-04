@@ -1,8 +1,8 @@
 # Ensure we require the local version and not one we might have installed already
-require File.join([File.dirname(__FILE__),'lib','google','version.rb'])
+require File.join([File.dirname(__FILE__),'lib','google_manager','version.rb'])
 spec = Gem::Specification.new do |s|
-  s.name = 'google'
-  s.version = Google::VERSION
+  s.name = 'google_manager'
+  s.version = GoogleManager::VERSION
   s.author = 'Timur Batyrshin'
   s.email = 'erthad@gmail.com'
   s.homepage = 'http://erthad.name'
@@ -11,8 +11,8 @@ spec = Gem::Specification.new do |s|
 # Add your other files here if you make them
   s.files = %w(
 bin/google
-lib/google/version.rb
-lib/google.rb
+lib/google_manager/version.rb
+lib/google_manager.rb
   )
   s.require_paths << 'lib'
   s.has_rdoc = true
@@ -24,7 +24,7 @@ lib/google.rb
   s.add_development_dependency('rdoc')
   s.add_development_dependency('aruba')
   s.add_runtime_dependency('gli','2.5.0')
-  s.add_runtime_dependency('google_apps')
+  s.add_runtime_dependency('provisioning-api')
   s.add_runtime_dependency('active_support')
   s.add_runtime_dependency('i18n')
 end

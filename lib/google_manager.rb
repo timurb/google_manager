@@ -1,11 +1,15 @@
-require 'google/version.rb'
-require 'google/user'
-require 'google/group'
+require 'provisioning-api'
+require 'active_support/core_ext/string/inflections'
+
+require 'google_manager/version.rb'
+require 'google_manager/user'
+require 'google_manager/group'
+require 'google_manager/core_ext/string'
 
 # Add requires for other files you add to your project here, so
 # you just need to require this one file in your bin file
 
-module Google
+module GoogleManager
   class Connector
 
     class << self
@@ -13,14 +17,9 @@ module Google
         @@transporter
       end
 
-      def user(command, args)
+      def command(type, command, args)
         raise "No command specified" if !command || command.empty?
-        Google::User.send( command, args )
-      end
-
-      def group(command, args)
-        raise "No command specified" if !command || command.empty?
-        Google::Group.send( command, args )
+        "GoogleManager::#{type.to_s.classify}".constantize.send( command, args )
       end
     end
 
@@ -35,8 +34,7 @@ module Google
 
     def transporter
       if ! defined?(@@transporter)
-        @@transporter = GoogleApps::Transport.new(domain)
-        @@transporter.authenticate(admin_user,admin_password)
+        @@transporter = GAppsProvisioning::ProvisioningApi.new(admin_user, admin_password)
       end
       @@transporter
     end
